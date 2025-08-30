@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,9 +7,19 @@
     <title>Chip8 Emu</title>
   </head>
   <body>
-    <div id="app">
+    <header class="hero">
+      <h1>Chip8 Emulator</h1>
+      <h6>By: StanTheMackiar</h6>
+    </header>
+
+    <section id="app">
+      <div class="input">
+        <p>Load your ROM file to get started.</p>
+        <input type="file" id="romInput" />
+      </div>
+
       <canvas></canvas>
-    </div>
+    </section>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

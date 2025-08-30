@@ -25,42 +25,51 @@ a:hover {
 body {
   margin: 0;
   display: flex;
+  flex-direction: column;
   place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 h1 {
   font-size: 3.2em;
-  line-height: 1.1;
+  margin: 0;
+}
+h6 {
+  margin: 0;
 }
 
 #app {
+  display: flex;
+  flex-direction: column;
   max-width: 1280px;
+  gap: 24px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #3178c6aa);
+.hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  h1 {
+    text-align: center;
+  }
+
+  h6 {
+    text-align: right;
+  }
 }
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+.input {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 button {
