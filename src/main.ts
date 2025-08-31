@@ -15,7 +15,7 @@ export const display = new Display(canvas);
 export const cpu = new CPU(memory, display, keypad, rom);
 
 // ----------------- CONFIG -----------------
-const CPU_HZ = 1200; // CHIP-8 típico ~500Hz
+const CPU_HZ = 500; // CHIP-8 típico ~500Hz
 const TIMER_HZ = 60; // timers a 60Hz
 
 let lastCycleTime = performance.now();
