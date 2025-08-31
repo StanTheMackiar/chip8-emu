@@ -1,16 +1,25 @@
-import { VIDEO_HEIGHT, VIDEO_WIDTH } from "../helpers/const/display.const";
+import {
+  VIDEO_HEIGHT,
+  VIDEO_SCALE,
+  VIDEO_WIDTH,
+} from "../helpers/const/display.const";
 
 export class Display {
   private display: Uint8Array;
   private imageData: ImageData;
+  private ctx: CanvasRenderingContext2D;
 
   constructor(
-    private readonly scale = 10,
+    private readonly canvas: HTMLCanvasElement,
+    private readonly scale = VIDEO_SCALE,
     private readonly onColor: [number, number, number] = [0xff, 0xff, 0xff],
     private readonly offColor: [number, number, number] = [0x00, 0x00, 0x00]
   ) {
     this.display = new Uint8Array(VIDEO_WIDTH * VIDEO_HEIGHT);
     this.imageData = new ImageData(VIDEO_WIDTH * scale, VIDEO_HEIGHT * scale);
+    this.canvas.width = VIDEO_WIDTH * scale;
+    this.canvas.height = VIDEO_HEIGHT * scale;
+    this.ctx = this.canvas.getContext("2d")!;
   }
 
   public fill(value: number) {
@@ -51,7 +60,7 @@ export class Display {
     this.display.fill(0);
   }
 
-  public renderToCanvas(ctx: CanvasRenderingContext2D) {
+  public render() {
     const data = this.imageData.data;
 
     for (let y = 0; y < VIDEO_HEIGHT; y++) {
@@ -75,6 +84,6 @@ export class Display {
       }
     }
 
-    ctx.putImageData(this.imageData, 0, 0);
+    this.ctx.putImageData(this.imageData, 0, 0);
   }
 }

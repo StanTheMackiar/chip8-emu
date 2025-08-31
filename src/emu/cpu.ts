@@ -1,6 +1,8 @@
 import { CPU_PC_START, CPU_REGISTERS } from "../helpers/const/cpu.const";
 import { FONTSET_START_ADDRESS, RAM_SIZE } from "../helpers/const/memory.const";
+import { EmulationStatusEnum } from "../helpers/enum/emulation-status.enum";
 import { getNibblesFromOpcode } from "../helpers/get-nibble.helper";
+import bootstrap from "../main";
 import type { Display } from "./display";
 import type { KeyPad } from "./keypad";
 import type { Memory } from "./memory";
@@ -12,7 +14,7 @@ export class CPU {
   private stack: number[];
   private delayTimer: number;
   private soundTimer: number;
-  public halted: boolean;
+  public status: EmulationStatusEnum;
 
   constructor(
     private readonly memory: Memory,
@@ -25,13 +27,13 @@ export class CPU {
     this.stack = [];
     this.delayTimer = 0;
     this.soundTimer = 0;
-    this.halted = false;
+    this.status = EmulationStatusEnum.RUNNING;
   }
 
   public reset() {
     this.PC = CPU_PC_START;
     this.I = 0x0;
-    this.halted = false;
+    this.status = EmulationStatusEnum.RUNNING;
     this.stack = [];
     this.delayTimer = 0;
     this.soundTimer = 0;
@@ -39,23 +41,41 @@ export class CPU {
     this.keypad.reset();
     this.display.clear();
     this.registers.fill(0);
+
+    this.start();
   }
 
   public fetchOpcode(): number {
     return this.memory.readWord(this.PC);
   }
 
-  public step() {
+  public start() {
+    this.status = EmulationStatusEnum.RUNNING;
+    bootstrap();
+  }
+
+  public pause() {
+    this.status = EmulationStatusEnum.PAUSED;
+  }
+
+  public stop() {
+    this.memory.unLoadROM();
+    this.display.clear();
+    this.display.render();
+    this.status = EmulationStatusEnum.STOPPED;
+  }
+
+  public step(): { status: EmulationStatusEnum } {
     if (!this.memory.hasROMLoaded()) {
       console.warn("No hay ROM cargada");
-      this.halted = true;
-      return;
+      this.stop();
+      return { status: this.status };
     }
 
     if (this.PC < 0x200 || this.PC >= RAM_SIZE) {
       console.error(`PC fuera de rango: 0x${this.PC.toString(16)}`);
-      this.halted = true; // bandera para frenar ejecución
-      return;
+      this.stop();
+      return { status: this.status };
     }
 
     const opcode = this.fetchOpcode();
@@ -64,6 +84,8 @@ export class CPU {
     if (shouldIncrementPC) {
       this.PC += 2;
     }
+
+    return { status: this.status };
   }
 
   public updateTimers() {
@@ -91,8 +113,10 @@ export class CPU {
             // RET (return from subroutine)
             if (this.stack.length === 0) throw new Error("Stack underflow");
             this.PC = this.stack.pop()!;
-            shouldIncrementPC = false;
             break;
+          }
+          default: {
+            console.warn(`Unknown opcode: 0x${opcode.toString(16)}`);
           }
         }
 
@@ -331,7 +355,7 @@ export class CPU {
           }
           case 0x29: {
             //Set I = location of sprite for digit Vx.
-            const vx = this.registers[n2];
+            const vx = this.registers[n2] & 0xf;
             this.I = FONTSET_START_ADDRESS + vx * 5;
             break;
           }

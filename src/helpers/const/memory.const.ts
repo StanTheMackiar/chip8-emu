@@ -83,5 +83,5 @@ export const CHIP_8_FONT_SET = new Uint8Array([
   0x80, // F
 ]);
 
-export const FONTSET_START_ADDRESS = 0x50;
+export const FONTSET_START_ADDRESS = 0;
 export const ROM_LOAD_START_ADDRESS = 0x200;

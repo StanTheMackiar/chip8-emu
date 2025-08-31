@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/src/style.css" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chip8 Emu</title>
@@ -13,10 +14,26 @@
     </header>
 
     <section id="app">
-      <div class="input">
-        <p>Load your ROM file to get started.</p>
-        <input type="file" id="romInput" />
+      <div class="bar">
+        <div>
+          <input
+            hidden
+            type="file"
+            id="romInput"
+            accept=".c8,.ch8,application/octet-stream"
+          />
+        </div>
+
+        <button id="loadBtn">Load ROM</button>
+        <button hidden id="resetBtn">Reset</button>
+        <button hidden id="pauseBtn">Reset</button>
+        <button hidden id="stopBtn">Stop</button>
       </div>
+
+      <section id="emu-info">
+        <h6 id="rom-name"></h6>
+        <h6 id="emu-status">Status: <span id="emu-status-text"></span></h6>
+      </section>
 
       <canvas></canvas>
     </section>

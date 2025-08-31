@@ -13,6 +13,10 @@ export class Memory {
     this.memory.set(CHIP_8_FONT_SET, FONTSET_START_ADDRESS);
   }
 
+  public unLoadROM() {
+    this.memory.fill(0, ROM_LOAD_START_ADDRESS);
+  }
+
   public loadROM(rom: Uint8Array) {
     if (rom.length + ROM_LOAD_START_ADDRESS > RAM_SIZE) {
       throw new Error("ROM demasiado grande para memoria CHIP-8");
@@ -34,7 +38,6 @@ export class Memory {
   }
 
   public readWord(address: number): number {
-    console.log(`Reading word from address: 0x${address.toString(16)}`);
     return (this.readByte(address) << 8) | this.readByte(address + 1);
   }
 }
