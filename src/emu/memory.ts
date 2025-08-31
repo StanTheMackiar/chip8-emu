@@ -4,22 +4,32 @@ import {
   RAM_SIZE,
   ROM_LOAD_START_ADDRESS,
 } from "../helpers/const/memory.const";
+import type { ROM } from "./rom";
 
 export class Memory {
   private memory: Uint8Array;
 
-  constructor() {
+  constructor(private readonly rom: ROM) {
     this.memory = new Uint8Array(RAM_SIZE);
+    this.loadFontSet();
+  }
+
+  public loadFontSet() {
     this.memory.set(CHIP_8_FONT_SET, FONTSET_START_ADDRESS);
   }
 
-  public unLoadROM() {
-    this.memory.fill(0, ROM_LOAD_START_ADDRESS);
+  public reset() {
+    this.memory.fill(0);
+    this.loadFontSet();
+    this.loadROM();
   }
 
-  public loadROM(rom: Uint8Array) {
+  public loadROM() {
+    const rom = this.rom.get();
+    if (!rom) return;
+
     if (rom.length + ROM_LOAD_START_ADDRESS > RAM_SIZE) {
-      throw new Error("ROM demasiado grande para memoria CHIP-8");
+      throw new Error("ROM too big for CHIP-8 memory");
     }
 
     this.memory.set(rom, ROM_LOAD_START_ADDRESS);

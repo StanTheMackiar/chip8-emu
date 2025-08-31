@@ -2,27 +2,32 @@ import { CPU } from "./emu/cpu";
 import { Display } from "./emu/display";
 import { KeyPad } from "./emu/keypad";
 import { Memory } from "./emu/memory";
+import { ROM } from "./emu/rom";
 import "./events";
-import { EmulationStatusEnum } from "./helpers/enum/emulation-status.enum";
+import { CPUStatusEnum } from "./helpers/enum/cpu-status.enum";
 
 const canvas = document.querySelector<HTMLCanvasElement>("canvas")!;
 
 export const keypad = new KeyPad();
-export const memory = new Memory();
+export const rom = new ROM();
+export const memory = new Memory(rom);
 export const display = new Display(canvas);
-export const cpu = new CPU(memory, display, keypad);
+export const cpu = new CPU(memory, display, keypad, rom);
 
 // ----------------- CONFIG -----------------
-const CPU_HZ = 500; // CHIP-8 típico ~500Hz
+const CPU_HZ = 1200; // CHIP-8 típico ~500Hz
 const TIMER_HZ = 60; // timers a 60Hz
 
 let lastCycleTime = performance.now();
 let lastTimerUpdate = performance.now();
 
-const noRunStatuses = [EmulationStatusEnum.PAUSED, EmulationStatusEnum.STOPPED];
-
 function loop() {
-  if (noRunStatuses.includes(cpu.status)) return;
+  if (cpu.status !== CPUStatusEnum.RUNNING) {
+    lastCycleTime = performance.now();
+    lastTimerUpdate = performance.now();
+    requestAnimationFrame(loop);
+    return;
+  }
 
   const now = performance.now();
   const delta = now - lastCycleTime;
@@ -30,7 +35,7 @@ function loop() {
 
   for (let i = 0; i < stepsToRun; i++) {
     const { status } = cpu.step();
-    if (noRunStatuses.includes(status)) break;
+    if (status !== CPUStatusEnum.RUNNING) break;
   }
 
   lastCycleTime = now;

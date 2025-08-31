@@ -1,5 +1,5 @@
 import { NO_ROM_LOADED } from "../helpers/const/no-rom-loaded.const";
-import { EmulationStatusEnum } from "../helpers/enum/emulation-status.enum";
+import { CPUStatusEnum } from "../helpers/enum/cpu-status.enum";
 
 export const $romName =
   document.querySelector<HTMLHeadingElement>("#rom-name")!;
@@ -20,5 +20,7 @@ export const $pauseBtn =
 
 export const $stopBtn = document.querySelector<HTMLButtonElement>("#stopBtn")!;
 
+export const $controls = document.querySelector<HTMLDivElement>("#controls")!;
+
 $romName.innerText = NO_ROM_LOADED;
-$emuStatusText.innerText = EmulationStatusEnum.STOPPED;
+$emuStatusText.innerText = CPUStatusEnum.STOPPED;

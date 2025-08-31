@@ -1,12 +1,10 @@
-import { cpu, memory } from "../main";
+import { cpu, memory, rom } from "../main";
 import {
+  $controls,
   $emuStatusText,
   $fileInput,
   $loadBtn,
-  $pauseBtn,
-  $resetBtn,
   $romName,
-  $stopBtn,
 } from "./dom-refs";
 
 $loadBtn.addEventListener("click", () => {
@@ -26,17 +24,17 @@ $fileInput.addEventListener("change", async () => {
   }
 
   const buffer = await file.arrayBuffer();
-  const rom = new Uint8Array(buffer);
+  const romData = new Uint8Array(buffer);
 
-  // cargar rom en memoria
-  memory.loadROM(rom);
+  rom.set(romData);
+  memory.loadROM();
 
-  // iniciar CPU
-  cpu.start();
+  // reiniciar CPU
+  cpu.restart();
 
-  $resetBtn.hidden = false;
-  $pauseBtn.hidden = false;
-  $stopBtn.hidden = false;
+  $controls.style.display = "flex";
   $emuStatusText.innerText = cpu.status;
   $romName.innerText = file.name;
+  $fileInput.value = "";
+  $fileInput.files = null;
 });

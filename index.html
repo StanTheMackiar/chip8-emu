@@ -15,19 +15,19 @@
 
     <section id="app">
       <div class="bar">
-        <div>
-          <input
-            hidden
-            type="file"
-            id="romInput"
-            accept=".c8,.ch8,application/octet-stream"
-          />
-        </div>
-
+        <input
+          hidden
+          type="file"
+          id="romInput"
+          accept=".c8,.ch8,application/octet-stream"
+        />
         <button id="loadBtn">Load ROM</button>
-        <button hidden id="resetBtn">Reset</button>
-        <button hidden id="pauseBtn">Reset</button>
-        <button hidden id="stopBtn">Stop</button>
+
+        <section id="controls">
+          <button id="resetBtn">Reset</button>
+          <button id="pauseBtn">Pause</button>
+          <button id="stopBtn">Stop</button>
+        </section>
       </div>
 
       <section id="emu-info">

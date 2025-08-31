@@ -22,14 +22,6 @@ export class Display {
     this.ctx = this.canvas.getContext("2d")!;
   }
 
-  public fill(value: number) {
-    this.display.fill(value);
-  }
-
-  public getDisplay(): Uint8Array {
-    return this.display;
-  }
-
   public getPixel(x: number, y: number): number {
     x = x % VIDEO_WIDTH;
     y = y % VIDEO_HEIGHT;
@@ -58,6 +50,7 @@ export class Display {
 
   public clear() {
     this.display.fill(0);
+    this.render();
   }
 
   public render() {

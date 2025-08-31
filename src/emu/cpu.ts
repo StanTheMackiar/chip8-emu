@@ -1,11 +1,11 @@
 import { CPU_PC_START, CPU_REGISTERS } from "../helpers/const/cpu.const";
 import { FONTSET_START_ADDRESS, RAM_SIZE } from "../helpers/const/memory.const";
-import { EmulationStatusEnum } from "../helpers/enum/emulation-status.enum";
+import { CPUStatusEnum } from "../helpers/enum/cpu-status.enum";
 import { getNibblesFromOpcode } from "../helpers/get-nibble.helper";
-import bootstrap from "../main";
 import type { Display } from "./display";
 import type { KeyPad } from "./keypad";
 import type { Memory } from "./memory";
+import type { ROM } from "./rom";
 
 export class CPU {
   private registers: Uint8Array;
@@ -14,35 +14,21 @@ export class CPU {
   private stack: number[];
   private delayTimer: number;
   private soundTimer: number;
-  public status: EmulationStatusEnum;
+  public status: CPUStatusEnum;
 
   constructor(
     private readonly memory: Memory,
     private readonly display: Display,
-    private readonly keypad: KeyPad
+    private readonly keypad: KeyPad,
+    private readonly rom: ROM
   ) {
     this.registers = new Uint8Array(CPU_REGISTERS);
     this.PC = CPU_PC_START;
-    this.I = 0x0;
+    this.I = 0;
     this.stack = [];
     this.delayTimer = 0;
     this.soundTimer = 0;
-    this.status = EmulationStatusEnum.RUNNING;
-  }
-
-  public reset() {
-    this.PC = CPU_PC_START;
-    this.I = 0x0;
-    this.status = EmulationStatusEnum.RUNNING;
-    this.stack = [];
-    this.delayTimer = 0;
-    this.soundTimer = 0;
-
-    this.keypad.reset();
-    this.display.clear();
-    this.registers.fill(0);
-
-    this.start();
+    this.status = CPUStatusEnum.RUNNING;
   }
 
   public fetchOpcode(): number {
@@ -50,32 +36,45 @@ export class CPU {
   }
 
   public start() {
-    this.status = EmulationStatusEnum.RUNNING;
-    bootstrap();
+    this.status = CPUStatusEnum.RUNNING;
+  }
+
+  public async restart() {
+    this.stop(true);
+
+    this.start();
   }
 
   public pause() {
-    this.status = EmulationStatusEnum.PAUSED;
+    this.status = CPUStatusEnum.PAUSED;
   }
 
-  public stop() {
-    this.memory.unLoadROM();
+  public stop(preserveROM = false) {
+    this.PC = CPU_PC_START;
+    this.I = 0;
+    this.stack = [];
+    this.delayTimer = 0;
+    this.soundTimer = 0;
+    this.registers.fill(0);
+
+    if (!preserveROM) this.rom.clear();
+    this.keypad.reset();
+    this.memory.reset();
     this.display.clear();
-    this.display.render();
-    this.status = EmulationStatusEnum.STOPPED;
+    this.status = CPUStatusEnum.STOPPED;
   }
 
-  public step(): { status: EmulationStatusEnum } {
+  public step(): { status: CPUStatusEnum } {
     if (!this.memory.hasROMLoaded()) {
-      console.warn("No hay ROM cargada");
+      console.warn("There isn't any ROM loaded");
       this.stop();
-      return { status: this.status };
+      return { status: CPUStatusEnum.STOPPED };
     }
 
     if (this.PC < 0x200 || this.PC >= RAM_SIZE) {
-      console.error(`PC fuera de rango: 0x${this.PC.toString(16)}`);
+      console.error(`PC out of range: 0x${this.PC.toString(16)}`);
       this.stop();
-      return { status: this.status };
+      return { status: CPUStatusEnum.STOPPED };
     }
 
     const opcode = this.fetchOpcode();
@@ -89,8 +88,8 @@ export class CPU {
   }
 
   public updateTimers() {
-    if (this.delayTimer > 0) this.delayTimer--;
-    if (this.soundTimer > 0) this.soundTimer--;
+    this.delayTimer = Math.max(0, this.delayTimer - 1);
+    this.soundTimer = Math.max(0, this.soundTimer - 1);
   }
 
   public executeOpcode(opcode: number): { shouldIncrementPC: boolean } {
@@ -111,7 +110,12 @@ export class CPU {
           }
           case 0xee: {
             // RET (return from subroutine)
-            if (this.stack.length === 0) throw new Error("Stack underflow");
+            if (this.stack.length === 0) {
+              console.warn("Stack underflow");
+              this.stop();
+              break;
+            }
+
             this.PC = this.stack.pop()!;
             break;
           }

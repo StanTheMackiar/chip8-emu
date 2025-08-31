@@ -1,8 +1,9 @@
 import { NO_ROM_LOADED } from "../helpers/const/no-rom-loaded.const";
+import { CPUStatusEnum } from "../helpers/enum/cpu-status.enum";
 import { cpu } from "../main";
 import {
+  $controls,
   $emuStatusText,
-  $fileInput,
   $pauseBtn,
   $resetBtn,
   $romName,
@@ -12,22 +13,28 @@ import {
 $stopBtn.addEventListener("click", () => {
   cpu.stop();
 
-  // limpiar input de archivo
-  $fileInput.value = "";
-  $fileInput.files = null;
-
   $emuStatusText.innerText = cpu.status;
   $romName.innerText = NO_ROM_LOADED;
+  $controls.style.display = "none";
 });
 
 $pauseBtn.addEventListener("click", () => {
-  cpu.pause();
+  const alreadyPaused = cpu.status === CPUStatusEnum.PAUSED;
+
+  if (alreadyPaused) {
+    cpu.start();
+    $pauseBtn.innerText = "Pause";
+  } else {
+    cpu.pause();
+    $pauseBtn.innerText = "Continue";
+  }
 
   $emuStatusText.innerText = cpu.status;
 });
 
 $resetBtn.addEventListener("click", () => {
-  cpu.reset();
+  cpu.restart();
 
+  $pauseBtn.innerText = "Pause";
   $emuStatusText.innerText = cpu.status;
 });
