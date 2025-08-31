@@ -22,5 +22,11 @@ export const $stopBtn = document.querySelector<HTMLButtonElement>("#stopBtn")!;
 
 export const $controls = document.querySelector<HTMLDivElement>("#controls")!;
 
+export const $volumeContainer =
+  document.querySelector<HTMLDivElement>("#volume-container")!;
+
+export const $volumeInput =
+  document.querySelector<HTMLInputElement>("#volume-input")!;
+
 $romName.innerText = NO_ROM_LOADED;
 $emuStatusText.innerText = CPUStatusEnum.STOPPED;

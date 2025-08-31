@@ -1,34 +1,29 @@
 import { KEYPAD_QUANTITY } from "../helpers/const/keypad.const";
+import { keyMap } from "../helpers/maps/key-map";
 
 export class KeyPad {
   private keys: Uint8Array;
 
   constructor() {
     this.keys = new Uint8Array(KEYPAD_QUANTITY);
+    this.initListeners();
   }
 
-  private validateKey(key: number) {
-    if (key < 0 || key >= KEYPAD_QUANTITY) {
-      throw new Error(`Invalid key: ${key}`);
-    }
-  }
+  private initListeners() {
+    document.addEventListener("keydown", (e) => {
+      const key = keyMap[e.code];
+      if (key !== undefined) this.keys[key] = 1;
+    });
 
-  public pressKey(key: number) {
-    this.validateKey(key);
-    this.keys[key] = 1;
-  }
-
-  public releaseKey(key: number) {
-    this.validateKey(key);
-    this.keys[key] = 0;
+    document.addEventListener("keyup", (e) => {
+      const key = keyMap[e.code];
+      if (key !== undefined) this.keys[key] = 0;
+    });
   }
 
   public isKeyPressed(key: number): boolean {
+    this.validateKey(key);
     return this.keys[key] === 1;
-  }
-
-  public reset() {
-    this.keys.fill(0);
   }
 
   public getFirstKeyPress(): number | null {
@@ -36,5 +31,15 @@ export class KeyPad {
       if (this.keys[i] === 1) return i;
     }
     return null;
+  }
+
+  public reset() {
+    this.keys.fill(0);
+  }
+
+  private validateKey(key: number) {
+    if (key < 0 || key >= KEYPAD_QUANTITY) {
+      throw new Error(`Invalid key: ${key}`);
+    }
   }
 }

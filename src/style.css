@@ -90,6 +90,17 @@ h6 {
   align-items: center;
 }
 
+#volume-container {
+  display: flex;
+  width: 150px;
+  margin: 0 auto;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;

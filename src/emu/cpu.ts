@@ -1,11 +1,8 @@
+import type { Display, KeyPad, Memory, ROM, Speaker } from ".";
 import { CPU_PC_START, CPU_REGISTERS } from "../helpers/const/cpu.const";
 import { FONTSET_START_ADDRESS, RAM_SIZE } from "../helpers/const/memory.const";
 import { CPUStatusEnum } from "../helpers/enum/cpu-status.enum";
 import { getNibblesFromOpcode } from "../helpers/get-nibble.helper";
-import type { Display } from "./display";
-import type { KeyPad } from "./keypad";
-import type { Memory } from "./memory";
-import type { ROM } from "./rom";
 
 export class CPU {
   private registers: Uint8Array;
@@ -20,7 +17,8 @@ export class CPU {
     private readonly memory: Memory,
     private readonly display: Display,
     private readonly keypad: KeyPad,
-    private readonly rom: ROM
+    private readonly rom: ROM,
+    private readonly speaker: Speaker
   ) {
     this.registers = new Uint8Array(CPU_REGISTERS);
     this.PC = CPU_PC_START;
@@ -90,6 +88,14 @@ export class CPU {
   public updateTimers() {
     this.delayTimer = Math.max(0, this.delayTimer - 1);
     this.soundTimer = Math.max(0, this.soundTimer - 1);
+  }
+
+  public playSound() {
+    if (this.soundTimer > 0) {
+      this.speaker.play(440);
+    } else {
+      this.speaker.stop();
+    }
   }
 
   public executeOpcode(opcode: number): { shouldIncrementPC: boolean } {
